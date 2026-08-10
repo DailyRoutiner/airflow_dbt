@@ -1,0 +1,25 @@
+flowchart TB
+    subgraph DART["OpenDART API (금융감독원)"]
+        A1["corpCode.xml<br/>고유번호"]
+        A2["company.json<br/>기업개황"]
+        A3["list.json<br/>공시검색"]
+        A4["fnlttSinglAcntAll.json<br/>재무제표"]
+    end
+
+    subgraph AF["Astro Runtime · Airflow 3.3"]
+        B1["dart_ingest DAG<br/>include/dart/"]
+        B2["dart_dbt DAG<br/>Cosmos + dbt_venv"]
+        B1 -. "Dataset" .-> B2
+    end
+
+    subgraph DBX["Databricks · Unity Catalog"]
+        C1[("UC Volume<br/>dart_landing")]
+        C2[("analytics_raw<br/>raw_dart_*")]
+        C3[("analytics<br/>stg → int → marts")]
+    end
+
+    DART -->|"HTTPS · crtfc_key"| B1
+    B1 -->|"① Files API 업로드"| C1
+    C1 -->|"② COPY INTO"| C2
+    C2 --> B2
+    B2 -->|"③ dbt run"| C3

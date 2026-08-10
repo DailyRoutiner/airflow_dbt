@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -11,18 +12,21 @@ from cosmos import (
 )
 from cosmos.profiles import DatabricksTokenProfileMapping
 
-# 컨테이너 안에서 경로
-DBT_PROJECT_PATH = Path("/usr/local/airflow/include/dbt/jaffle_shop")
-DBT_EXECUTABLE_PATH = "/usr/local/airflow/dbt_venv/bin/dbt"
+# Astro Runtime은 /usr/local/airflow, apache/airflow 공식 이미지는 /opt/airflow 를 사용
+AIRFLOW_HOME= Path(os.environ.get("AIRFLOW_HOME", "/usr/local/airflow"))
+DBT_PROJECT_PATH= AIRFLOW_HOME / "include" / "dbt" / "jaffle_shop"
+DBT_EXECUTION_PAH= str( AIRFLOW_HOME / "dbt_venv" / "bin" / "dbt")
 
+
+# Cosmos 핵심 - airflow에 있는 connection 정보 활용(DatabricksTokenProfileMapping)
 profile_config = ProfileConfig(
-    profile_name='jaffle_shop',
+    profile_name="jaffle_shop",
     target_name="dev",
     profile_mapping=DatabricksTokenProfileMapping(
         conn_id="dbt-db",
         profile_args={
-            "catalog": "workspace",
-            "schema": "analytics"
+            "catalog":"workspace",
+            "schema":"analytics"
         }
     )
 )

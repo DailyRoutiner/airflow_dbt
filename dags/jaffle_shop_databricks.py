@@ -15,7 +15,7 @@ from cosmos.profiles import DatabricksTokenProfileMapping
 # Astro Runtime은 /usr/local/airflow, apache/airflow 공식 이미지는 /opt/airflow 를 사용
 AIRFLOW_HOME= Path(os.environ.get("AIRFLOW_HOME", "/usr/local/airflow"))
 DBT_PROJECT_PATH= AIRFLOW_HOME / "include" / "dbt" / "jaffle_shop"
-DBT_EXECUTION_PAH= str( AIRFLOW_HOME / "dbt_venv" / "bin" / "dbt")
+DBT_EXECUTABLE_PATH= str( AIRFLOW_HOME / "dbt_venv" / "bin" / "dbt")
 
 
 # Cosmos 핵심 - airflow에 있는 connection 정보 활용(DatabricksTokenProfileMapping)

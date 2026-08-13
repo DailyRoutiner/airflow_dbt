@@ -1,0 +1,65 @@
+version: 2
+
+sources:
+  - name: chinook
+    database: analytics
+    schema: raw
+    description: "원본 테이블"
+    
+    tables:
+      - name: album
+        description: "앨범"
+        columns:
+          - name: album_id
+            test:
+              - unique
+              - not_null
+      - name: artist
+        description: "아티스트"
+        columns:
+          - name: artist_id
+            test:
+              - unique
+              - not_null
+      - name: customer
+        description: "고객"
+        columns:
+          - name: customer_id
+            test:
+              - unique
+              - not_null
+      - name: employee
+        description: "직원"
+        columns:
+          - name: employee_id
+            test:
+              - unique
+              - not_null
+      - name: genre
+        description: "장르"
+        columns:
+          - name: genre_id
+            test:
+              - unique
+              - not_null
+      - name: invoice
+        description: "주문"
+        columns:
+          - name: invoice_id
+            test:
+              - unique
+              - not_null
+      - name: invoice_line
+        description: "주문상세"
+        columns:
+          - name: invoice_line_id
+            test:
+              - unique
+              - not_null
+      - name: track
+        description: "노래"
+        columns:
+          - name: track_id
+            test:
+              - unique
+              - not_null

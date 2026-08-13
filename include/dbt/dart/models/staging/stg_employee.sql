@@ -7,7 +7,7 @@ with source as (
           last_name,
           first_name,
           title as job_title,
-          reports_to,
+          reports_to as manager_id,
           birth_date,
           hire_date,
           address,

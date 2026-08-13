@@ -1,0 +1,13 @@
+# DB 연결정보
+dart:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      port: 5432
+      user: dbt
+      password: "{{ env_var('DBT_PWD') }}"
+      dbname: analytics
+      schema: dbt_lab
+      threads: 4

@@ -1,5 +1,5 @@
 # DB 연결정보
-dart:
+chinook:
   target: dev
   outputs:
     dev:

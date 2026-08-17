@@ -1,0 +1,114 @@
+version: 2
+
+models:
+  - name: stg_customer
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+      - name: employee_id
+        data_tests:
+          - relationships:
+              to: ref('stg_employee')
+              field: employee_id
+
+  - name: stg_employee
+    columns:
+      - name: employee_id
+        data_tests:
+          - unique
+          - not_null
+      - name: manager_id
+        data_tests:
+          - relationships:
+              to: ref('stg_employee')
+              field: employee_id
+
+  - name: stg_invoice
+    columns:
+      - name: invoice_id
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_tests:
+          - relationships:
+              to: ref('stg_customer')
+              field: customer_id
+          - not_null
+      - name: invoice_date
+        data_tests:
+          - not_null
+
+  - name: stg_invoice_line
+    columns:
+      - name: invoice_line_id
+        data_tests:
+          - unique
+          - not_null
+      - name: invoice_id
+        data_tests:
+          - relationships:
+              to: ref('stg_invoice')
+              field: invoice_id
+          - not_null
+      - name: track_id
+        data_tests:
+          - relationships:
+              to: ref('stg_track')
+              field: track_id
+  
+  - name: stg_track
+    columns:
+      - name: track_id
+        data_tests:
+          - unique
+          - not_null
+      - name: album_id
+        data_tests:
+          - relationships:
+              to: ref('stg_album')
+              field: album_id
+      - name: genre_id
+        data_tests:
+          - relationships:
+              to: ref('stg_genre')
+              field: genre_id
+      - name: unit_price
+        data_tests:
+          - accepted_values: 
+              values: [0.99, 1.99]
+              quote: false
+      - name: composer
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+
+
+  - name:  stg_album
+    columns:
+      - name: album_id
+        data_tests:
+          - unique
+          - not_null
+      - name: artist_id
+        data_tests:
+          - relationships:
+              to: ref('stg_artist')
+              field: artist_id
+  
+  - name: stg_artist
+    columns:
+      - name: artist_id
+        data_tests:
+          - unique
+          - not_null
+  
+  - name: stg_genre
+    columns:
+      - name: genre_id
+        data_tests:
+          - unique
+          - not_null

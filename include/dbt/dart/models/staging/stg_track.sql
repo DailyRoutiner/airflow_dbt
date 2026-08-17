@@ -8,11 +8,11 @@ with source as (
           album_id,
           media_type_id,
           genre_id,
-          composer
+          composer,
           -- 안쓰는 컬럼들은 버리기
         --   date_trunc('second', (milliseconds || ' ms')::interval) as minutes,
         --   bytes,
-        --   unit_price
+          unit_price
 
       from source
   )

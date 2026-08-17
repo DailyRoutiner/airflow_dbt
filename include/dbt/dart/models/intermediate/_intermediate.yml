@@ -1,0 +1,9 @@
+version: 2
+
+models:
+  - name: int_customers_enriched
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          

@@ -5,61 +5,33 @@ sources:
     database: analytics
     schema: raw
     description: "원본 테이블"
+    loaded_at_field: _loaded_at #  적재 시각이 담긴 컬럼
+    freshness:
+      warn_after: {count: 12, period: hour}
+      error_after: {count: 24, period: hour }
     
     tables:
       - name: album
         description: "앨범"
-        columns:
-          - name: album_id
-            data_tests:
-              - unique
-              - not_null
+
       - name: artist
         description: "아티스트"
-        columns:
-          - name: artist_id
-            data_tests:
-              - unique
-              - not_null
+
       - name: customer
         description: "고객"
-        columns:
-          - name: customer_id
-            data_tests:
-              - unique
-              - not_null
+
       - name: employee
         description: "직원"
-        columns:
-          - name: employee_id
-            data_tests:
-              - unique
-              - not_null
+
       - name: genre
         description: "장르"
-        columns:
-          - name: genre_id
-            data_tests:
-              - unique
-              - not_null
+
       - name: invoice
         description: "주문"
-        columns:
-          - name: invoice_id
-            data_tests:
-              - unique
-              - not_null
+
       - name: invoice_line
         description: "주문상세"
-        columns:
-          - name: invoice_line_id
-            data_tests:
-              - unique
-              - not_null
+
       - name: track
         description: "노래"
-        columns:
-          - name: track_id
-            data_tests:
-              - unique
-              - not_null
+

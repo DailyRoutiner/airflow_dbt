@@ -47,22 +47,6 @@ flowchart TB
 
 **원본 파일을 Volume에 남기는 이유** — 파싱 로직이 바뀌어도 API 재호출 없이 재처리할 수 있습니다. 일일 한도가 있는 API에서 중요한 안전장치입니다.
 
----
-
-## 구현 현황
-
-| # | 단계 | 상태 |
-|---|---|---|
-| 1 | `requests` 추가 · DAG 경로 환경변수화 | ✅ |
-| 2 | Airflow Connection `dart_api` 등록 | ✅ |
-| 3 | `include/dart/client.py` — API 클라이언트 | 🚧 |
-| 4 | `corpCode.xml` 수집 → 대상 종목 목록 확보 | ⬜ |
-| 5 | `include/dart/loader.py` — Volume 업로드 + COPY INTO | ⬜ |
-| 6 | Databricks raw 테이블 DDL | ⬜ |
-| 7~9 | 공시검색 / 기업개황 / 재무제표 수집 태스크 | ⬜ |
-| 10 | `dags/dart_ingest.py` 조립 + Dataset 발행 | ⬜ |
-| 11~15 | dbt 프로젝트 · staging · marts · 테스트 | ⬜ |
-| 16~17 | `dags/dart_dbt.py` + 초기 백필 | ⬜ |
 
 ---
 
@@ -105,42 +89,6 @@ staging/                        intermediate/                    marts/
 > ⚠️ 모든 API가 **8자리 `corp_code`(DART 고유번호)** 를 요구합니다. 6자리 종목코드로는 조회되지 않으므로, `corpCode.xml` 수집이 다른 모든 수집의 선행 조건입니다.
 
 ---
-
-## 프로젝트 구조
-
-```
-airflow_dbt/
-├── Dockerfile                      # Astro Runtime 이미지 + dbt 전용 venv
-├── requirements.txt                # Cosmos, Databricks provider, requests
-├── .env                            # Connection 정의 (Git 제외)
-│
-├── docs/
-│   ├── architecture.mmd            # 아키텍처 다이어그램 원본
-│   └── SETUP.md                    # 설정 · 설계 노트 · 트러블슈팅
-│
-├── dags/
-│   ├── jaffle_shop_databricks.py   # 참조용 예제 DAG
-│   ├── dart_ingest.py              # 예정 — DART 수집 DAG
-│   └── dart_dbt.py                 # 예정 — Cosmos DbtDag
-│
-├── include/
-│   ├── dart/                       # ★ Python 수집 로직
-│   │   ├── client.py               # OpenDART API 클라이언트
-│   │   ├── endpoints.py            # 예정 — 엔드포인트별 파라미터 정의
-│   │   └── loader.py               # 예정 — Volume 업로드 + COPY INTO
-│   │
-│   └── dbt/                        # ★ dbt 프로젝트 전용 (Python 파일 금지)
-│       ├── jaffle_shop/            # 참조용 예제 dbt 프로젝트
-│       └── dart/                   # 예정 — DART dbt 프로젝트
-│           ├── dbt_project.yml
-│           ├── seeds/target_corps.csv   # 대상 종목 목록 (수집·dbt 공용)
-│           └── models/
-│               ├── staging/
-│               ├── intermediate/
-│               └── marts/
-│
-└── tests/dags/                     # DAG 무결성 테스트
-```
 
 > **`include/dart/` 와 `include/dbt/dart/` 를 혼동하지 마세요.** 앞은 Python 수집 코드, 뒤는 dbt 프로젝트입니다. `include/dbt/` 아래에 Python 파일을 두면 dbt 실행 시 뒤섞입니다.
 

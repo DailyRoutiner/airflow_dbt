@@ -58,29 +58,52 @@ class DartClient:
         api_url = f"{self.base_url}/{endpoint}"
         
         params["crtfc_key"] = self.api_key
+
+        resp = self.session.get(url=api_url, params=params, timeout=30)
+
+        resp.raise_for_status() # 400/500 번대 HTTP 에러 발생
         
-        return self.session.get(url=api_url, params=params, timeout=30)           
+        return resp
 
     def _raise_for_status(self, status:str, message:str, endpoint:str) -> None:
         if status in FATAL_STATUS:
             raise DartApiError(status, message, endpoint, retry=False)
         if status in RETRYABLE_STATUS:
             raise DartApiError(status, message, endpoint, retry=True)
-        raise DartApiError(status, message, endpoint )    
+        raise DartApiError(status, message, endpoint )
 
-
-    def get_json(self, endpoint:str, **params) -> list[dict]:
-        """JSON 응답 파싱, status 확인하고 list 리턴"""
+    
+    # get_json, get_dict 을 위한 공통 함수
+    def _get_payload(self, endpoint: str, **params) -> dict | None:
+        """ 요청+status 확인. 정상이면 응답 dict 전체, 데이터 없으면 None"""
         resp= self._request(endpoint=endpoint, **params)
         payload = resp.json()
         status = payload.get("status")
 
         # status 체크
         if status == SUCCESS_STATUS:
-            return payload.get("list", [])  # resp.json()['list'] 이렇게 쓰지 말것
+            return payload
         if status == NO_DATA_STATUS:
-            return []
+            return None                 # 데이터 없음
         self._raise_for_status(status, payload.get("message", ""), endpoint)
+
+
+    def get_json(self, endpoint:str, **params) -> list[dict]:
+        """JSON 응답 파싱, status 확인하고 list 리턴"""
+        payload = self._get_payload(endpoint, **params)
+
+        if payload == None:
+            return []
+        
+        return payload.get("list", [])
+
+    def get_dict(self, endpoint: str, **params) -> dict | None:
+        """ 단건 응답"""
+        payload = self._get_payload(endpoint, **params)
+
+        return payload
+
+
   
 
     def get_zip(self, endpoint:str, **params) -> bytes:
@@ -101,8 +124,10 @@ class DartClient:
 if __name__ == "__main__":
     client = DartClient(os.environ['DART_API_KEY']) # os.environ['DART_API_KEY']
     # resp = client.get_json(endpoint="list.json", bgn_de="20260803", end_de="20260807", page_count="10")
-    # print(resp)
+
+    print(client.get_dict('company.json', corp_code="00126380"))
 
     resp = client.get_zip(endpoint='corpCode.xml')
-    print(resp[:300])
+    #print(resp[:300])
+
 

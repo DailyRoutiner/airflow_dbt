@@ -1,0 +1,14 @@
+version: 2
+
+seeds:
+  - name: country_region
+    columns:
+      - name: country
+        data_tests:
+          - unique
+          - not_null
+      - name: continent
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Asia', 'Europe', 'North America', 'Oceania', 'South America']

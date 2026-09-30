@@ -2,85 +2,128 @@ version: 2
 
 models:
   - name: stg_customer
+    description: >
+      1행 = 고객 1명
     columns:
       - name: customer_id
+        description: >
+          {{ doc('customer_id') }}
         data_tests:
           - unique
           - not_null
+      - name: full_name
+        description: >
+          고객 전체 이름
       - name: employee_id
+        description: >
+          고객을 담당하는 직원
         data_tests:
           - relationships:
               to: ref('stg_employee')
               field: employee_id
 
   - name: stg_employee
+    description: >
+      1행 = 직원 1명 
     columns:
       - name: employee_id
+        description: >
+          직원 한명의 식별자
         data_tests:
           - unique
           - not_null
       - name: manager_id
+        description: >
+          직원의 상사 식별자. NULL이면 제일 높은 상사
         data_tests:
           - relationships:
               to: ref('stg_employee')
               field: employee_id
 
   - name: stg_invoice
+    description: >
+      1행 = 주문 1건
     columns:
       - name: invoice_id
+        description: >
+          주문 한건에 대한 식별자
         data_tests:
           - unique
           - not_null
       - name: customer_id
+        description: >
+          '{{ doc("customer_id") }}'
         data_tests:
           - relationships:
               to: ref('stg_customer')
               field: customer_id
           - not_null
       - name: invoice_date
+        description: >
+          주문한 날짜. 결제 완료 일자가 아니다.
         data_tests:
           - not_null
 
   - name: stg_invoice_line
+    description: >
+      1행 = 주문에 포함되는 상품 1건
     columns:
       - name: invoice_line_id
+        description: >
+          주문의 품목 라인 식별자
         data_tests:
           - unique
           - not_null
       - name: invoice_id
+        description: >
+          주문 식별자
         data_tests:
           - relationships:
               to: ref('stg_invoice')
               field: invoice_id
           - not_null
       - name: track_id
+        description: >
+          주문한 트랙 식별자 
         data_tests:
           - relationships:
               to: ref('stg_track')
               field: track_id
   
   - name: stg_track
+    description: >
+      1행 = 1곡
     columns:
       - name: track_id
+        description: >
+          트랙 식별자
         data_tests:
           - unique
           - not_null
       - name: album_id
+        description: >
+          트랙이 포함되는 앨범 식별자
         data_tests:
           - relationships:
               to: ref('stg_album')
               field: album_id
       - name: genre_id
+        description: >
+          해당 트랙의 장르 식별자
         data_tests:
           - relationships:
               to: ref('stg_genre')
               field: genre_id
       - name: unit_price
+        description: >
+          해당 트랙 가격
         data_tests:
           - accepted_values: 
               values: [0.99, 1.99]
               quote: false
       - name: composer
+        description: >
+          트랙의 작곡가
         data_tests:
           - not_null:
               config:
@@ -88,27 +131,41 @@ models:
 
 
   - name:  stg_album
+    description: >
+      1행 = 앨범 1개
     columns:
       - name: album_id
+        description: > 
+          앨범의 식별자
         data_tests:
           - unique
           - not_null
       - name: artist_id
+        description: >
+          앨범의 아티스트 식별자
         data_tests:
           - relationships:
               to: ref('stg_artist')
               field: artist_id
   
   - name: stg_artist
+    description: >
+      1행 = 아티스트 1명
     columns:
       - name: artist_id
+        description: >
+          아티스트 식별자
         data_tests:
           - unique
           - not_null
   
   - name: stg_genre
+    description: > 
+      1행 = 장르 한개
     columns:
       - name: genre_id
+        description: >
+          장르 식별자
         data_tests:
           - unique
           - not_null

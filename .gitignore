@@ -3,6 +3,7 @@
 .DS_Store
 airflow_settings.yaml
 __pycache__/
+.vscode/
 .astro
 .venv
 .astro/standalone/

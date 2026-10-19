@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 import time
 
 BASE_URL = "https://opendart.fss.or.kr/api"
-MAX_ATTEMPTS = 3 # 재시도 최대 횟수
+MAX_ATTEMPTS = 3 # 최대 시도 횟수
 
 RETRYABLE_STATUS = {
     "800": "시스템 점검으로 인한 정지",

@@ -1,4 +1,5 @@
 import pytest
+import time
 from include.dart.client import DartClient, DartApiError
 from requests.exceptions import HTTPError, Timeout
 
@@ -46,11 +47,78 @@ def test_fake_response():
 
     assert exc.value.response.status_code == 503
 
+# session 503, 200 test
 def test_fake_session():
     session = FakeSession([FakeResponse(503), FakeResponse(200)])
     
     assert session.get(url="x").status_code == 503
     assert session.get(url="x").status_code == 200
     assert session.calls ==2
-    
 
+# 200 test
+def test_request_success_first_try():
+    # 준비
+    client = make_client([FakeResponse(200)])
+
+    # 활동 실행
+    resp = client._request(endpoint="list.json")
+
+    # 확인
+    assert resp.status_code == 200
+    assert client.session.calls == 1
+
+# 404 test
+def test_request_404_no_retry():
+    client = make_client([FakeResponse(404)])
+
+    with pytest.raises(HTTPError):
+        client._request(endpoint="list.json")
+
+    assert client.session.calls == 1
+
+# 반복 줄이기. monkeypatch는 time.sleep 기능 바꿔치기
+@pytest.fixture
+def fake_sleep(monkeypatch):
+    waits = [] 
+    monkeypatch.setattr(time, "sleep", lambda x: waits.append(x))
+
+    return waits
+
+
+# 503 -> 200 test
+def test_request_retry_then_success(fake_sleep):
+    # 준비: sleep 가짜로 바꾸기
+
+    client = make_client([FakeResponse(503), FakeResponse(200)])
+
+    # 실행
+    resp = client._request(endpoint="list.json")
+
+    # 결과 확인
+    assert resp.status_code == 200
+    assert client.session.calls == 2
+    assert fake_sleep == [1]
+
+def test_request_503_give_up_after_max_attempts(fake_sleep):
+
+    client = make_client([FakeResponse(503),FakeResponse(503),FakeResponse(503) ])
+
+    with pytest.raises(HTTPError):
+        client._request(endpoint="list.json")
+
+    assert client.session.calls == 3
+    assert fake_sleep == [1, 2,]
+
+
+def test_request_timeout(fake_sleep):
+
+
+    client = make_client([Timeout(), FakeResponse(200)])
+
+    resp = client._request(endpoint="list.json")
+
+    assert resp.status_code == 200
+    assert client.session.calls == 2
+    assert fake_sleep == [1]
+
+    

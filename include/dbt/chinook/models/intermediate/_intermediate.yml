@@ -4,6 +4,8 @@ models:
   - name: int_customers_enriched
     columns:
       - name: customer_id
+        description: >
+          '{{ doc("customer_id") }}'
         data_tests:
           - unique
           

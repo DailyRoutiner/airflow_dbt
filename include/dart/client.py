@@ -1,5 +1,6 @@
 """DART OPEN API 클라이언트 """
 import requests
+from requests import HTTPError
 import os
 import xml.etree.ElementTree as ET
 
@@ -10,6 +11,7 @@ RETRYABLE_STATUS = {
     "800": "시스템 점검으로 인한 정지",
     "900": "정의되지 않은 오류",
 }
+
 FATAL_STATUS= {
     # 010, 011, 012 
     "010": "등록되지 않은 키",
@@ -20,6 +22,7 @@ FATAL_STATUS= {
     "100": "필드의 부적절한 값",
     "101": "부적절한 접근",
 }
+
 SUCCESS_STATUS = "000"
 NO_DATA_STATUS = "013"
 
@@ -56,8 +59,7 @@ class DartClient:
         
         params["crtfc_key"] = self.api_key
         
-        return self.session.get(url=api_url, params=params, timeout=30)
-
+        return self.session.get(url=api_url, params=params, timeout=30)           
 
     def _raise_for_status(self, status:str, message:str, endpoint:str) -> None:
         if status in FATAL_STATUS:

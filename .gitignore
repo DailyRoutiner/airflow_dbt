@@ -3,6 +3,7 @@
 .DS_Store
 airflow_settings.yaml
 __pycache__/
+.vscode/
 .astro
 .venv
 .astro/standalone/
@@ -17,3 +18,5 @@ airflow.db
 include/dbt/logs/
 include/dbt/jaffle_shop/target/
 include/dbt/jaffle_shop/seeds/
+
+docs/

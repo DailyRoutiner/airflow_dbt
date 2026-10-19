@@ -1,0 +1,38 @@
+[0m09:47:26.383607 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000018640E7D7F0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001864442ECC0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000186460B0170>]}
+
+
+============================== 09:47:26.386662 | a86dde1d-8791-479f-9745-a30fdf8a0e79 ==============================
+[0m09:47:26.386662 [info ] [MainThread]: Running with dbt=1.11.12
+[0m09:47:26.386662 [debug] [MainThread]: running dbt with arguments {'static_parser': 'True', 'no_print': 'None', 'version_check': 'True', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'target_path': 'None', 'printer_width': '80', 'write_json': 'True', 'empty': 'None', 'log_cache_events': 'False', 'introspect': 'True', 'cache_selected_only': 'False', 'fail_fast': 'False', 'debug': 'False', 'log_format': 'default', 'partial_parse': 'True', 'send_anonymous_usage_stats': 'True', 'quiet': 'False', 'warn_error': 'None', 'profiles_dir': 'C:\\Users\\ponmo\\.dbt', 'invocation_command': 'dbt debug', 'use_colors': 'True', 'indirect_selection': 'eager', 'use_experimental_parser': 'False', 'log_path': 'logs'}
+[0m09:47:26.409067 [info ] [MainThread]: dbt version: 1.11.12
+[0m09:47:26.409067 [info ] [MainThread]: python version: 3.12.10
+[0m09:47:26.410071 [info ] [MainThread]: python path: C:\repo\airflow_dbt\.venv\Scripts\python.exe
+[0m09:47:26.410071 [info ] [MainThread]: os info: Windows-11-10.0.26200-SP0
+[0m09:47:26.410071 [info ] [MainThread]: Using profiles dir at C:\Users\ponmo\.dbt
+[0m09:47:26.411071 [info ] [MainThread]: Using profiles.yml file at C:\Users\ponmo\.dbt\profiles.yml
+[0m09:47:26.411071 [info ] [MainThread]: Using dbt_project.yml file at C:\repo\airflow_dbt\dbt_project.yml
+[0m09:47:26.411071 [info ] [MainThread]: Configuration:
+[0m09:47:26.411071 [info ] [MainThread]:   profiles.yml file [[31mERROR not found[0m]
+[0m09:47:26.412072 [info ] [MainThread]:   dbt_project.yml file [[31mERROR not found[0m]
+[0m09:47:26.412072 [info ] [MainThread]: Required dependencies:
+[0m09:47:26.412072 [debug] [MainThread]: Executing "git --help"
+[0m09:47:26.421114 [info ] [MainThread]:  - git [[31mERROR[0m]
+
+[0m09:47:26.421114 [info ] [MainThread]: Connection test skipped since no profile was found
+[0m09:47:26.422778 [info ] [MainThread]: [31m3 checks failed:[0m
+[0m09:47:26.422778 [info ] [MainThread]: dbt looked for a profiles.yml file in C:\Users\ponmo\.dbt\profiles.yml, but did
+not find one. For more information on configuring your profile, consult the
+documentation:
+
+https://docs.getdbt.com/docs/configure-your-profile
+
+
+[0m09:47:26.422778 [info ] [MainThread]: Project loading failed for the following reason:
+ project path <C:\repo\airflow_dbt\dbt_project.yml> not found
+
+[0m09:47:26.422778 [info ] [MainThread]: Error from git --help: Could not find command, ensure it is in the user's PATH and that the user has permissions to run it: "git"
+
+[0m09:47:26.423786 [debug] [MainThread]: Command `dbt debug` failed at 09:47:26.423786 after 0.11 seconds
+[0m09:47:26.423786 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000186460B0170>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001864238E510>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000018640F07620>]}
+[0m09:47:26.423786 [debug] [MainThread]: Flushing usage events
+[0m09:47:27.404636 [debug] [MainThread]: An error was encountered while trying to flush usage events

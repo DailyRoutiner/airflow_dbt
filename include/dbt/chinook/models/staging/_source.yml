@@ -4,7 +4,7 @@ sources:
   - name: chinook
     database: analytics
     schema: raw
-    description: "원본 테이블"
+    description: "chinook의 원본 테이블. seed에서 들어오는 raw, 적재 주기는 하루"
     loaded_at_field: _loaded_at #  적재 시각이 담긴 컬럼
     freshness:
       warn_after: {count: 12, period: hour}

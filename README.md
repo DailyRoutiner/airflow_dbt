@@ -48,6 +48,33 @@ flowchart TB
 **원본 파일을 Volume에 남기는 이유** — 파싱 로직이 바뀌어도 API 재호출 없이 재처리할 수 있습니다. 일일 한도가 있는 API에서 중요한 안전장치입니다.
 
 
+## 구현 현황
+
+| # | 단계 | 상태 |
+|---|---|---|
+| 1 | `requests` 추가 · DAG 경로 환경변수화 | ✅ |
+| 2 | Airflow Connection `dart_api` 등록 | ✅ |
+| 3 | `include/dart/client.py` — API 클라이언트 | 🚧 (재시도 로직 미구현) |
+| 4 | `corpCode.xml` 수집 → 대상 종목 목록 확보 | 🚧 (`corp_code.py` 파싱 함수 스텁) |
+| 5 | `include/dart/loader.py` — Volume 업로드 + COPY INTO | ⬜ |
+| 6 | Databricks raw 테이블 DDL | ⬜ |
+| 7~9 | 공시검색 / 기업개황 / 재무제표 수집 태스크 | ⬜ |
+| 10 | `dags/dart_ingest.py` 조립 + Dataset 발행 | ⬜ |
+| 11~15 | dbt 프로젝트 · staging · marts · 테스트 (실제 DART 데이터 대상) | ⬜ |
+| 16~17 | `dags/dart_dbt.py` + 초기 백필 | ⬜ |
+
+
+### dbt 실습 (`include/dbt/chinook/`)
+
+실제 DART dbt 프로젝트(11~15단계)를 시작하기 전, Chinook 샘플 데이터로 staging → intermediate → marts 구조와 테스트 작성을 먼저 연습하는 별도 프로젝트입니다. DART 데이터가 아니므로 위 로드맵과는 무관합니다.
+
+| 단계 | 내용 | 상태 |
+|---|---|---|
+| 1 | source·staging 모델 | ✅ |
+| 2 | intermediate 계층 + `country_region` seed | ✅ |
+| 3 | staging·intermediate·seed 테스트 20개 이상 | ✅ |
+| 4 | marts 모델 | 🚧 (`feature/step5-marts` 브랜치, 착수 전) |
+
 ---
 
 ## 수집 범위
@@ -90,6 +117,50 @@ staging/                        intermediate/                    marts/
 
 ---
 
+## 프로젝트 구조
+
+```
+airflow_dbt/
+├── Dockerfile                      # Astro Runtime 이미지 + dbt 전용 venv
+├── requirements.txt                # Cosmos, Databricks provider, requests
+├── .env                            # Connection 정의 (Git 제외)
+│
+├── docs/
+│   ├── architecture.mmd            # 아키텍처 다이어그램 원본
+│   └── SETUP.md                    # 설정 · 설계 노트 · 트러블슈팅
+│
+├── dags/
+│   ├── dart_ingest.py              # 예정 — DART 수집 DAG
+│   └── dart_dbt.py                 # 예정 — Cosmos DbtDag
+│
+├── include/
+│   ├── dart/                       # ★ Python 수집 로직
+│   │   ├── client.py               # OpenDART API 클라이언트
+│   │   ├── corp_code.py            # corpCode.xml 파싱 (스텁, 미구현)
+│   │   ├── endpoints.py            # 예정 — 엔드포인트별 파라미터 정의
+│   │   └── loader.py               # 예정 — Volume 업로드 + COPY INTO
+│   │
+│   └── dbt/                        # ★ dbt 프로젝트 전용 (Python 파일 금지)
+│       ├── chinook/                # dbt 실습용 (Chinook 샘플 데이터, DART 아님)
+│       │   ├── dbt_project.yml
+│       │   ├── seeds/country_region.csv
+│       │   └── models/
+│       │       ├── staging/
+│       │       ├── intermediate/
+│       │       └── marts/          # 예정 — feature/step5-marts
+│       └── dart/                   # 예정 — 실제 DART dbt 프로젝트 (11~15단계 착수 시 생성)
+│           ├── dbt_project.yml
+│           ├── seeds/target_corps.csv   # 대상 종목 목록 (수집·dbt 공용)
+│           └── models/
+│               ├── staging/
+│               ├── intermediate/
+│               └── marts/
+│
+└── tests/dags/                     # DAG 무결성 테스트
+```
+
 > **`include/dart/` 와 `include/dbt/dart/` 를 혼동하지 마세요.** 앞은 Python 수집 코드, 뒤는 dbt 프로젝트입니다. `include/dbt/` 아래에 Python 파일을 두면 dbt 실행 시 뒤섞입니다.
+>
+> **`include/dbt/dart/` 는 아직 존재하지 않습니다.** 현재 dbt 실습은 `include/dbt/chinook/` 에서 진행 중이며, 실제 DART 데이터를 다루는 dbt 프로젝트는 11~15단계 착수 시 별도로 만듭니다.
 
 **`target_corps.csv` 가 단일 소스** — 수집 로직과 dbt seed가 같은 파일을 참조하므로, 종목 추가/제거가 이 파일 수정 한 번으로 끝납니다.

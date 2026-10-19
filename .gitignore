@@ -18,3 +18,5 @@ airflow.db
 include/dbt/logs/
 include/dbt/jaffle_shop/target/
 include/dbt/jaffle_shop/seeds/
+
+docs/

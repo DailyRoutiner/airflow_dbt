@@ -1,5 +1,6 @@
 """DART OPEN API 클라이언트 """
 import requests
+from requests import HTTPError
 import os
 import xml.etree.ElementTree as ET
 
@@ -58,8 +59,7 @@ class DartClient:
         
         params["crtfc_key"] = self.api_key
         
-        return self.session.get(url=api_url, params=params, timeout=30)
-
+        return self.session.get(url=api_url, params=params, timeout=30)           
 
     def _raise_for_status(self, status:str, message:str, endpoint:str) -> None:
         if status in FATAL_STATUS:

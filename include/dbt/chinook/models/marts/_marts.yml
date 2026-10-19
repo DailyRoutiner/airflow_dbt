@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: dim_customer
+    description: 1행 = 고객 1명. 지역, 담당 직원 정보 포함
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+  - name: dim_track
+    description: 1행 = 음원 1곡. 아티스트, 앨범, 트랙, 장르 포함
+    columns:
+      - name: track_id
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_invoice_line
+    description: 1행 = 주문 1행, line_amount = quantity * unit_price
+    columns:
+      - name: invoice_id
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        data_tests:
+          - relationships:
+            arguments:
+              to: ref('dim_customer')
+              field: customer_id
+      - name: track_id
+        data_tests:
+          - unique
+          - not_null
+
+    

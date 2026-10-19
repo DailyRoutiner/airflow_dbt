@@ -47,7 +47,6 @@ flowchart TB
 
 **원본 파일을 Volume에 남기는 이유** — 파싱 로직이 바뀌어도 API 재호출 없이 재처리할 수 있습니다. 일일 한도가 있는 API에서 중요한 안전장치입니다.
 
----
 
 ## 구현 현황
 
@@ -63,6 +62,7 @@ flowchart TB
 | 10 | `dags/dart_ingest.py` 조립 + Dataset 발행 | ⬜ |
 | 11~15 | dbt 프로젝트 · staging · marts · 테스트 (실제 DART 데이터 대상) | ⬜ |
 | 16~17 | `dags/dart_dbt.py` + 초기 백필 | ⬜ |
+
 
 ### dbt 실습 (`include/dbt/chinook/`)
 

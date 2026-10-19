@@ -1,15 +1,23 @@
 """DART OPEN API 클라이언트 """
 import requests
-from requests import HTTPError
+from requests.exceptions import HTTPError, Timeout, ConnectionError
 import os
 import xml.etree.ElementTree as ET
+import time
 
 BASE_URL = "https://opendart.fss.or.kr/api"
-
+MAX_ATTEMPTS = 3 # 최대 시도 횟수
 
 RETRYABLE_STATUS = {
     "800": "시스템 점검으로 인한 정지",
     "900": "정의되지 않은 오류",
+}
+RETRYABLE_HTTP = {
+    429 : "Too Many Requests",
+    503 : "Service Unavailable",
+    504 : "Gateway Timeout",
+    502 : "Bad Gateway",
+    500 : "Internal Server Error",
 }
 
 FATAL_STATUS= {
@@ -58,29 +66,70 @@ class DartClient:
         api_url = f"{self.base_url}/{endpoint}"
         
         params["crtfc_key"] = self.api_key
-        
-        return self.session.get(url=api_url, params=params, timeout=30)           
+
+        for attempt in range(0, MAX_ATTEMPTS):
+            try:
+                resp = self.session.get(url=api_url, params=params, timeout=(5,30))
+                resp.raise_for_status()
+                return resp
+            except HTTPError as e :
+                code = e.response.status_code
+                if attempt == MAX_ATTEMPTS -1  or code not in RETRYABLE_HTTP:
+                    # 400/500 번대 HTTP 에러 발생
+                    print(f"[HTTP Error]- {code} : {e}")
+                    raise
+                
+                wait = 2 ** attempt 
+                print(f"[Retry] {code}, {wait} 초 후 재시도 {attempt + 1 }/{MAX_ATTEMPTS}")
+                time.sleep(wait)
+            except (Timeout, ConnectionError) as e:
+                if attempt == MAX_ATTEMPTS - 1:
+                    print(f"Time Out or Connection Error: {e}" )
+                    raise
+                wait = 2 ** attempt
+                print(f"[Retry] {type(e).__name__} {wait} 초 후 재시도 {attempt + 1 }/{MAX_ATTEMPTS}" )
+                time.sleep(wait)    
+
 
     def _raise_for_status(self, status:str, message:str, endpoint:str) -> None:
         if status in FATAL_STATUS:
             raise DartApiError(status, message, endpoint, retry=False)
         if status in RETRYABLE_STATUS:
             raise DartApiError(status, message, endpoint, retry=True)
-        raise DartApiError(status, message, endpoint )    
+        raise DartApiError(status, message, endpoint )
 
-
-    def get_json(self, endpoint:str, **params) -> list[dict]:
-        """JSON 응답 파싱, status 확인하고 list 리턴"""
+    
+    # get_json, get_dict 을 위한 공통 함수
+    def _get_payload(self, endpoint: str, **params) -> dict | None:
+        """ 요청+status 확인. 정상이면 응답 dict 전체, 데이터 없으면 None"""
         resp= self._request(endpoint=endpoint, **params)
         payload = resp.json()
         status = payload.get("status")
 
         # status 체크
         if status == SUCCESS_STATUS:
-            return payload.get("list", [])  # resp.json()['list'] 이렇게 쓰지 말것
+            return payload
         if status == NO_DATA_STATUS:
-            return []
+            return None                 # 데이터 없음
         self._raise_for_status(status, payload.get("message", ""), endpoint)
+
+
+    def get_json(self, endpoint:str, **params) -> list[dict]:
+        """JSON 응답 파싱, status 확인하고 list 리턴"""
+        payload = self._get_payload(endpoint, **params)
+
+        if payload is None:
+            return []
+        
+        return payload.get("list", [])
+
+    def get_dict(self, endpoint: str, **params) -> dict | None:
+        """ 단건 응답"""
+        payload = self._get_payload(endpoint, **params)
+
+        return payload
+
+
   
 
     def get_zip(self, endpoint:str, **params) -> bytes:
@@ -101,8 +150,10 @@ class DartClient:
 if __name__ == "__main__":
     client = DartClient(os.environ['DART_API_KEY']) # os.environ['DART_API_KEY']
     # resp = client.get_json(endpoint="list.json", bgn_de="20260803", end_de="20260807", page_count="10")
-    # print(resp)
+
+    print(client.get_dict('company.json', corp_code="00126380"))
 
     resp = client.get_zip(endpoint='corpCode.xml')
-    print(resp[:300])
+    #print(resp[:300])
+
 

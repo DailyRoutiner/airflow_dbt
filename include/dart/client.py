@@ -1,11 +1,12 @@
 """DART OPEN API 클라이언트 """
 import requests
-from requests import HTTPError
+from requests.exceptions import HTTPError, Timeout, ConnectionError
 import os
 import xml.etree.ElementTree as ET
+import time
 
 BASE_URL = "https://opendart.fss.or.kr/api"
-
+MAX_ATTEMPTS = 3 # 재시도 최대 횟수
 
 RETRYABLE_STATUS = {
     "800": "시스템 점검으로 인한 정지",
@@ -66,18 +67,29 @@ class DartClient:
         
         params["crtfc_key"] = self.api_key
 
-        for attempt in range(0, 3):
+        for attempt in range(0, MAX_ATTEMPTS):
             try:
-                resp = self.session.get(url=api_url, params=params, timeout=30)
+                resp = self.session.get(url=api_url, params=params, timeout=(5,30))
                 resp.raise_for_status()
                 return resp
             except HTTPError as e :
                 code = e.response.status_code
-                if attempt == 2 or code not in RETRYABLE_HTTP:
+                if attempt == MAX_ATTEMPTS -1  or code not in RETRYABLE_HTTP:
                     # 400/500 번대 HTTP 에러 발생
                     print(f"[HTTP Error]- {code} : {e}")
                     raise
-                    
+                
+                wait = 2 ** attempt 
+                print(f"[Retry] {code}, {wait} 초 후 재시도 {attempt + 1 }/{MAX_ATTEMPTS}")
+                time.sleep(wait)
+            except (Timeout, ConnectionError) as e:
+                if attempt == MAX_ATTEMPTS - 1:
+                    print(f"Time Out or Connection Error: {e}" )
+                    raise
+                wait = 2 ** attempt
+                print(f"[Retry] {type(e).__name__} {wait} 초 후 재시도 {attempt + 1 }/{MAX_ATTEMPTS}" )
+                time.sleep(wait)    
+
 
     def _raise_for_status(self, status:str, message:str, endpoint:str) -> None:
         if status in FATAL_STATUS:

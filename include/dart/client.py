@@ -11,6 +11,13 @@ RETRYABLE_STATUS = {
     "800": "시스템 점검으로 인한 정지",
     "900": "정의되지 않은 오류",
 }
+RETRYABLE_HTTP = {
+    429 : "Too Many Requests",
+    503 : "Service Unavailable",
+    504 : "Gateway Timeout",
+    502 : "Bad Gateway",
+    500 : "Internal Server Error",
+}
 
 FATAL_STATUS= {
     # 010, 011, 012 
@@ -59,11 +66,18 @@ class DartClient:
         
         params["crtfc_key"] = self.api_key
 
-        resp = self.session.get(url=api_url, params=params, timeout=30)
-
-        resp.raise_for_status() # 400/500 번대 HTTP 에러 발생
-        
-        return resp
+        for attempt in range(0, 3):
+            try:
+                resp = self.session.get(url=api_url, params=params, timeout=30)
+                resp.raise_for_status()
+                return resp
+            except HTTPError as e :
+                code = e.response.status_code
+                if attempt == 2 or code not in RETRYABLE_HTTP:
+                    # 400/500 번대 HTTP 에러 발생
+                    print(f"[HTTP Error]- {code} : {e}")
+                    raise
+                    
 
     def _raise_for_status(self, status:str, message:str, endpoint:str) -> None:
         if status in FATAL_STATUS:
@@ -92,7 +106,7 @@ class DartClient:
         """JSON 응답 파싱, status 확인하고 list 리턴"""
         payload = self._get_payload(endpoint, **params)
 
-        if payload == None:
+        if payload is None:
             return []
         
         return payload.get("list", [])

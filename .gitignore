@@ -20,3 +20,5 @@ include/dbt/jaffle_shop/target/
 include/dbt/jaffle_shop/seeds/
 
 docs/
+data/
+.pytest_cache

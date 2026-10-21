@@ -5,6 +5,7 @@ import os
 import xml.etree.ElementTree as ET
 import time
 
+
 BASE_URL = "https://opendart.fss.or.kr/api"
 MAX_ATTEMPTS = 3 # 최대 시도 횟수
 
@@ -148,12 +149,29 @@ class DartClient:
 
 
 if __name__ == "__main__":
+
+    from pathlib import Path
+    from include.dart.corp_code import parse_corp_zip, filter_listed    
     client = DartClient(os.environ['DART_API_KEY']) # os.environ['DART_API_KEY']
     # resp = client.get_json(endpoint="list.json", bgn_de="20260803", end_de="20260807", page_count="10")
 
-    print(client.get_dict('company.json', corp_code="00126380"))
+    # print(client.get_dict('company.json', corp_code="00126380"))
 
+    
     resp = client.get_zip(endpoint='corpCode.xml')
+    Path("data").mkdir(parents=True, exist_ok=True) 
+    path = Path("data") / "corpCode.zip"
+    print( path)
+
+
+    with open(path, "wb") as f:
+        f.write(resp)
+
+
+    list_corp = parse_corp_zip(path.read_bytes())
+    filtered_list  = filter_listed(list_corp)
+    print(len(list_corp), len(filtered_list ))
+
     #print(resp[:300])
 
 

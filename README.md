@@ -54,8 +54,8 @@ flowchart TB
 |---|---|---|
 | 1 | `requests` 추가 · DAG 경로 환경변수화 | ✅ |
 | 2 | Airflow Connection `dart_api` 등록 | ✅ |
-| 3 | `include/dart/client.py` — API 클라이언트 | ✅ (재시도는 Airflow `retries` 로 처리 — 7~10단계) |
-| 4 | `corpCode.xml` 수집 → 대상 종목 목록 확보 | 🚧 (`corp_code.py` 파싱 함수 스텁) |
+| 3 | `include/dart/client.py` — API 클라이언트 | ✅ (재시도는 client에서 _request 최대 3회 처리 — 7~10단계) |
+| 4 | `corpCode.xml` 수집 → 대상 종목 목록 확보 | ✅ (`corp_code.py` 파싱 함수 스텁) |
 | 5 | `include/dart/loader.py` — Volume 업로드 + COPY INTO | ⬜ |
 | 6 | Databricks raw 테이블 DDL | ⬜ |
 | 7~9 | 공시검색 / 기업개황 / 재무제표 수집 태스크 | ⬜ |

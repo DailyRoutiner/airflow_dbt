@@ -3,4 +3,3 @@ astronomer-cosmos>=1.8.0
 apache-airflow-providers-databricks
 requests
 apache-airflow-providers-common-io
-apache-airflow-providers-amazon[s3fs]

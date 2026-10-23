@@ -60,6 +60,7 @@ flowchart TB
 | 6 | Databricks raw 테이블 DDL | ⬜ |
 | 7~9 | 공시검색 / 기업개황 / 재무제표 수집 태스크 | ⬜ |
 | 10 | `dags/dart_ingest.py` 조립 + Dataset 발행 | ⬜ |
+| 10.5 | Slack으로 Failure 알람 보내기 (3번과 연관) | ⬜ |
 | 11~15 | dbt 프로젝트 · staging · marts · 테스트 (실제 DART 데이터 대상) | ⬜ |
 | 16~17 | `dags/dart_dbt.py` + 초기 백필 | ⬜ |
 

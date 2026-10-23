@@ -37,12 +37,25 @@ def test_corp_code_is_8_digits(rows):
 
 
 def test_stock_code_is_6_digits(rows): 
-    pytest.skip("TODO")
+    filtered_stocks = filter_listed(rows)
+
+    result = [row for row in filtered_stocks if len(row['stock_code']) != 6 ]
+
+    assert result == []
 
 
 def test_corp_code_unique(rows):  
-    pytest.skip("TODO")
+    listed = [row['corp_code'] for row in rows ]
+
+    convert_set = set(listed)
+
+    assert len(listed) == len(convert_set)
 
 
 def test_samsung(rows):  
-    pytest.skip("TODO")
+    # next() : "하나만 찾는 순간" 멈춤
+    samsung = next((row for row in rows if row['corp_code'] =='00126380'), None )
+
+    assert samsung is not None
+    assert samsung['corp_name'] == '삼성전자'
+    assert samsung['stock_code'] == '005930'

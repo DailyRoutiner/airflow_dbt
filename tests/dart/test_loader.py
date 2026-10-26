@@ -1,21 +1,28 @@
 import json
 from include.dart.loader import build_volume_path, to_jsonl
+import pytest
 
 
 ROWS = [
  {"corp_code": "00126380", "corp_name": "삼성전자"},
   {"corp_code": "99999999", "corp_name": "unknown"}
 ]
+VOLUME_ROOT = "/Volumes/workspace/analytics_raw/dart_landing"
 
-
-def test_build_volume_path():
+@pytest.mark.parametrize(
+        "args, expected",
+        [
+            (("disclosure", "2026-10-22"), f"{VOLUME_ROOT}/disclosure/2026-10-22.jsonl"),
+            (("company", "2026-10-22"), f"{VOLUME_ROOT}/company/2026-10-22.jsonl"),
+            (("fin_stmt", "00126380", "2025", "11011"), f"{VOLUME_ROOT}/fin_stmt/00126380/2025/11011.jsonl"),
+            (("company",), f"{VOLUME_ROOT}/company.jsonl"),
+        ],
+)
+def test_build_volume_path(args, expected):
     """ parts 있을 때와 없을 때 잘 동작 하는가"""
-    
-    result1 = build_volume_path("company", "2026-10-22", "00126380")
-    result2 = build_volume_path("company")
 
-    assert result1 == "/Volumes/workspace/analytics_raw/dart_landing/company/2026-10-22/00126380.jsonl"
-    assert result2 == "/Volumes/workspace/analytics_raw/dart_landing/company.jsonl"
+    # 케이스 1,2,3,4
+    assert build_volume_path(*args) == expected
 
 
 def test_to_jsonl():

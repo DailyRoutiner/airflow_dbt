@@ -1,9 +1,10 @@
 """ 
-1. API 응답(zip)을 JSONL 으로 변환
+1. "기업개황(list[dict])": 이 모듈은 공시, 재무제표도 다뤄요.  JSONL 으로 변환
 2. JSONL을 Volume에 적재
 
-- 적재 전략: 날짜 단위 delete-insert 항상 덮어쓴다.
-- 0건이여도 빈 파일을 올리는 이유
+- 적재 전략: delete 단위 = 파일 단위 항상 덮어씀
+재무제표 : 회사 +연도+ 보고서 단위
+- 0건이여도 파일을 올려야 하는 이유는 수행했는데, 건너뛰면 이전 데이터가 남아있어 원천과 달라진다.
 
 """
 import json
@@ -13,13 +14,13 @@ import io
 # Volume Root는 상수
 VOLUME_ROOT = "/Volumes/workspace/analytics_raw/dart_landing"
 
-def build_volume_path(endpoint: str,  *parts) -> str:
-    """ endpoint는 확장자 없이 ('company'), parts는 하위 폴더/파일명 """
-    path = "/".join([VOLUME_ROOT, endpoint, *parts])
+def build_volume_path(table: str,  *parts: str) -> str:
+    """ table은 확장자 없이 ('disclosure'), parts는 하위 폴더/파일명 """
+    path = "/".join([VOLUME_ROOT, table, *parts])
     path += ".jsonl"
     return path
 
-def to_jsonl(rows) -> bytes:
+def to_jsonl(rows: list[dict]) -> bytes:
     
     json_list = [json.dumps(row, ensure_ascii=False) for row in rows]
     

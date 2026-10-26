@@ -1,6 +1,7 @@
 import json
 from include.dart.loader import build_volume_path, to_jsonl
 
+
 ROWS = [
  {"corp_code": "00126380", "corp_name": "삼성전자"},
   {"corp_code": "99999999", "corp_name": "unknown"}
@@ -32,4 +33,4 @@ def test_to_jsonl():
     
     assert  decoded_rows == ROWS
     assert "삼성전자" in result.decode("utf-8")
-    
+

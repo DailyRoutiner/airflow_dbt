@@ -1,13 +1,14 @@
 """ 
-client.get_json()          loader (5-2)                 loader (5-3)
-  응답 dict  ──▶  JSON 파일로 Volume에 업로드  ──▶  REPLACE WHERE  ──▶  raw_dart_* 테이블
-                 /Volumes/.../company/2026-10-22/...jsonl
+1. API 응답(zip)을 JSONL 으로 변환
+2. JSONL을 Volume에 적재
 
+- 적재 전략: 날짜 단위 delete-insert 항상 덮어쓴다.
+- 0건이여도 빈 파일을 올리는 이유
 
 """
 import json
 import io
-from databricks.sdk import WorkspaceClient
+
 
 # Volume Root는 상수
 VOLUME_ROOT = "/Volumes/workspace/analytics_raw/dart_landing"
@@ -19,21 +20,16 @@ def build_volume_path(endpoint: str,  *parts) -> str:
     return path
 
 def to_jsonl(rows) -> bytes:
-    json_list = []
-    for row in rows:
-        row_str = json.dumps(row, ensure_ascii=False)
-        json_list.append(row_str)
+    
+    json_list = [json.dumps(row, ensure_ascii=False) for row in rows]
     
     json_bytes = "\n".join(json_list).encode("utf-8")
 
     return json_bytes
 
-def upload_to_volume(client, data:bytes, path:str):
-    # 1. Data 0건인지 확인 -> 비었으면 로그 남기고 False
+def upload_to_volume(client, data:bytes, path:str, overwrite: bool = True):
     file = io.BytesIO(data)
-    client.files.upload(file_path=path, contents=file, overwrite=True)
 
-    
+    client.files.upload(file_path=path, contents=file, overwrite=overwrite)
 
-if __name__ == "__main__":
-    print(build_volume_path("company", "2026-10-22", "00126380"))
+

@@ -34,3 +34,12 @@ def upload_to_volume(client, data:bytes, path:str, overwrite: bool = True):
     client.files.upload(file_path=path, contents=file, overwrite=overwrite)
 
 
+def get_workspace_client(conn_id: str = "dbt-db"):
+    # 함수 안에서 import 
+    from airflow.sdk import BaseHook    # 3 버전
+    from databricks.sdk import WorkspaceClient
+
+    conn = BaseHook.get_connection(conn_id)
+    return WorkspaceClient(host=conn.host, token=conn.password)
+
+    

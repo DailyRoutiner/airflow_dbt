@@ -1,6 +1,8 @@
 import json
-from include.dart.loader import build_volume_path, to_jsonl
 import pytest
+from unittest.mock import MagicMock # 이건 뭐지?
+
+from include.dart.loader import build_volume_path, to_jsonl, load_to_volume
 
 
 ROWS = [
@@ -41,3 +43,20 @@ def test_to_jsonl():
     assert  decoded_rows == ROWS
     assert "삼성전자" in result.decode("utf-8")
 
+
+def test_load_to_volume():
+    client = MagicMock()
+    rows = [{"corp_code": "00126380"}]
+
+    path = load_to_volume(client, rows, "company", "2026-10-28")
+
+    assert path == "/Volumes/workspace/analytics_raw/dart_landing/company/2026-10-28.jsonl"
+
+    client.files.upload.assert_called_once()
+    kwargs = client.files.upload.call_args.kwargs
+    assert kwargs["file_path"] == path
+
+    assert kwargs['contents'].read() == to_jsonl(rows)
+    # 0건이여도 호출되나?
+    load_to_volume(client, [], "company", "x")
+    assert client.files.upload.call_count == 2

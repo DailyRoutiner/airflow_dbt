@@ -40,3 +40,11 @@ def get_workspace_client(conn_id: str = "dbt-db"):
 
     conn = BaseHook.get_connection(conn_id)
     return WorkspaceClient(host=conn.host, token=conn.password)
+
+
+def load_to_volume(client, rows:list[dict], table:str, *parts: str):
+    """ rows -> JSONL -> Volume 업로드. 업로드한 경로를 반환"""
+    path = build_volume_path(table, *parts) # 펼쳐서 넘겨?
+    data = to_jsonl(rows)
+    upload_to_volume(client, data, path)
+    return path

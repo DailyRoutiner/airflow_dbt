@@ -34,14 +34,18 @@ def filter_listed(rows: list[dict]) -> list[dict]:
     return results
 
 
-def write_target_csv(rows: list[dict],  stock_codes: list[str], path:str) -> None:
+def write_target_csv(rows: list[dict], roles: dict[str, str], path:str) -> None:
     """ 관심 종목만 골라 CSV로 저장"""
-    targets_set = set(stock_codes)  # 해시로 탐색하기 위해 list -> set 변경
+    # targets = [{**row, "role": "anchor"} for row in rows if row['stock_code'] in roles]
 
-    targets = [row for row in rows if row['stock_code'] in targets_set]
+    targets = []
+    for row in rows:
+        if row['stock_code'] in roles:
+            role = roles[row['stock_code']]
+            targets.append({**row, "role": role})
 
     with open(path, "w", newline="", encoding="utf-8") as f:
-        fieldnames = ["corp_code", "corp_name", "stock_code"]
+        fieldnames = ["corp_code", "corp_name", "stock_code", "role"]
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(targets)

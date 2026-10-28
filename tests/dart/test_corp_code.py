@@ -47,14 +47,16 @@ def test_write_target_csv(tmp_path):
     path = tmp_path / "target.csv"
 
     rows = parse_corp_zip(make_zip(XML))
+    data = {"005930": "anchor", "999999": "peer"}
 
-    write_target_csv(rows, ['005930', '999999'], str(path))
+    write_target_csv(rows, data, str(path))
 
     with open(path, encoding='utf-8') as f:
         target = list(csv.DictReader(f))
 
     # 확인
     assert len(target) == 1
+    assert target[0]['role'] == data["005930"]
     assert target[0]['stock_code'] == "005930"
     assert target[0]['corp_code'] == "00126380"
 

@@ -1,9 +1,8 @@
 """ 
-1. "기업개황(list[dict])": 이 모듈은 공시, 재무제표도 다뤄요.  JSONL 으로 변환
+1. API 응답 행(list[dict]) -> JSONL으로 변환
 2. JSONL을 Volume에 적재
 
 - 적재 전략: delete 단위 = 파일 단위 항상 덮어씀
-재무제표 : 회사 +연도+ 보고서 단위
 - 0건이여도 파일을 올려야 하는 이유는 수행했는데, 건너뛰면 이전 데이터가 남아있어 원천과 달라진다.
 
 """
@@ -41,5 +40,3 @@ def get_workspace_client(conn_id: str = "dbt-db"):
 
     conn = BaseHook.get_connection(conn_id)
     return WorkspaceClient(host=conn.host, token=conn.password)
-
-    

@@ -1,8 +1,9 @@
 import json
 import pytest
 from unittest.mock import MagicMock 
+from databricks.sdk.service.sql import StatementState
 
-from include.dart.loader import build_volume_path, to_jsonl, load_to_volume, build_copy_sql
+from include.dart.loader import build_volume_path, to_jsonl, load_to_volume, build_copy_sql, run_sql
 
 
 ROWS = [
@@ -71,3 +72,47 @@ def test_build_copy_sql():
     assert "FROM '/Volumes/workspace/analytics_raw/dart_landing/company.jsonl'" in sql
     assert "FILEFORMAT = JSON" in sql
     assert "force" not in sql
+
+def test_run_sql_failed():
+
+    client = MagicMock()
+    chain = client.statement_execution.execute_statement
+    chain.return_value.status.state = StatementState.FAILED
+
+    with pytest.raises(RuntimeError, match="FAILED"):
+        run_sql(client, "test-wh", "select 1")
+
+    kwargs = chain.call_args.kwargs
+    assert kwargs["warehouse_id"] == "test-wh"
+    assert kwargs["statement"] == "select 1"
+
+
+def test_run_sql_success():
+
+    client = MagicMock()
+    chain = client.statement_execution.execute_statement
+    chain.return_value.status.state = StatementState.SUCCEEDED
+
+    
+    run_sql(client, "test-wh", "select 1")
+
+    kwargs = chain.call_args.kwargs
+    assert kwargs["warehouse_id"] == "test-wh"
+    assert kwargs["statement"] == "select 1"
+
+
+def test_run_sql_timeout():
+
+    client = MagicMock()
+    chain = client.statement_execution.execute_statement
+    chain.return_value.status.state = StatementState.RUNNING
+
+    chain.return_value.status.error = None # 이게 왜 필요한거지?
+
+    with pytest.raises(RuntimeError, match="RUNNING"):
+        run_sql(client, "test-wh", "select 1")
+
+
+    kwargs = chain.call_args.kwargs
+    assert kwargs["warehouse_id"] == "test-wh"
+    assert kwargs["statement"] == "select 1"

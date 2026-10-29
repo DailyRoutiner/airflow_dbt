@@ -8,6 +8,7 @@
 """
 import json
 import io
+from databricks.sdk.service.sql import StatementState
 
 
 # Volume Root는 상수
@@ -59,11 +60,19 @@ def build_copy_sql(table: str, path:str) -> str:
     """
     return sql
 
-# def run_sql(client, sql):
-#     """ volume에 있는걸 Table 화"""
+def run_sql(client, warehouse_id: str, sql: str):
+    """ SQL 실행, 실패 시 예외"""
     
-#     client.statement_execution.execute_statement(
-#         statement= sql,
-#         warehouse_id= , # ID?
-#     )
+
+    response = client.statement_execution.execute_statement(
+        statement= sql,
+        warehouse_id= warehouse_id,
+        wait_timeout= "50s",
+    )
+
+    if response.status.state != StatementState.SUCCEEDED:
+        error = response.status.error
+        detail = error.message if error is not None else "메시지 없음"
+        raise RuntimeError(f"Databricks Server Error: {response.status.state} {detail} ")
+    return response
 

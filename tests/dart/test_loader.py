@@ -1,8 +1,8 @@
 import json
 import pytest
-from unittest.mock import MagicMock # 이건 뭐지?
+from unittest.mock import MagicMock 
 
-from include.dart.loader import build_volume_path, to_jsonl, load_to_volume
+from include.dart.loader import build_volume_path, to_jsonl, load_to_volume, build_copy_sql
 
 
 ROWS = [
@@ -60,3 +60,14 @@ def test_load_to_volume():
     # 0건이여도 호출되나?
     load_to_volume(client, [], "company", "x")
     assert client.files.upload.call_count == 2
+
+def test_build_copy_sql():
+    table = 'company'
+    path = build_volume_path(table)
+
+    sql = build_copy_sql(table, path)
+
+    assert "COPY INTO workspace.analytics_raw.company" in sql
+    assert "FROM '/Volumes/workspace/analytics_raw/dart_landing/company.jsonl'" in sql
+    assert "FILEFORMAT = JSON" in sql
+    assert "force" not in sql

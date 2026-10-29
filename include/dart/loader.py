@@ -48,3 +48,22 @@ def load_to_volume(client, rows:list[dict], table:str, *parts: str):
     data = to_jsonl(rows)
     upload_to_volume(client, data, path)
     return path
+
+def build_copy_sql(table: str, path:str) -> str:
+    """ Volume JSONL 에서 Raw 테이블로 COPY INTO 생성 """
+    target_table = f"workspace.analytics_raw.{table}"
+    sql = f"""
+        COPY INTO {target_table}
+        FROM '{path}'
+        FILEFORMAT = JSON
+    """
+    return sql
+
+# def run_sql(client, sql):
+#     """ volume에 있는걸 Table 화"""
+    
+#     client.statement_execution.execute_statement(
+#         statement= sql,
+#         warehouse_id= , # ID?
+#     )
+

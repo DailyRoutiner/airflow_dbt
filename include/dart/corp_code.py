@@ -36,7 +36,6 @@ def filter_listed(rows: list[dict]) -> list[dict]:
 
 def write_target_csv(rows: list[dict], roles: dict[str, str], path:str) -> None:
     """ 관심 종목만 골라 CSV로 저장"""
-    # targets = [{**row, "role": "anchor"} for row in rows if row['stock_code'] in roles]
 
     targets = []
     for row in rows:
@@ -49,9 +48,4 @@ def write_target_csv(rows: list[dict], roles: dict[str, str], path:str) -> None:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(targets)
-
-
-        
-
-
 

@@ -28,7 +28,7 @@ flowchart TB
 
     subgraph DBX["Databricks · Unity Catalog"]
         C1[("UC Volume<br/>dart_landing")]
-        C2[("analytics_raw<br/>raw_dart_*")]
+        C2[("analytics_raw<br/>raw_*")]
         C3[("analytics<br/>stg → int → marts")]
     end
 
@@ -101,10 +101,10 @@ flowchart TB
 
 | OpenDART API | raw 테이블 | staging 모델 | 성격 |
 |---|---|---|---|
-| `corpCode.xml` (고유번호) | `raw_dart_corp_code` | `stg_dart__corp_code` | 전체 스냅샷 |
-| `company.json` (기업개황) | `raw_dart_company` | `stg_dart__company` | 스냅샷 |
-| `list.json` (공시검색) | `raw_dart_disclosure` | `stg_dart__disclosure` | 일자 증분 |
-| `fnlttSinglAcntAll.json` (재무제표) | `raw_dart_fin_stmt` | `stg_dart__fin_stmt` | 연도·보고서 증분 |
+| `corpCode.xml` (고유번호) | `raw_corp_code` | `stg_corp_code` | 전체 스냅샷 |
+| `company.json` (기업개황) | `raw_company` | `stg_company` | 스냅샷 |
+| `list.json` (공시검색) | `raw_disclosure` | `stg_disclosure` | 일자 증분 |
+| `fnlttSinglAcntAll.json` (재무제표) | `raw_fin_stmt` | `stg_fin_stmt` | 연도·보고서 증분 |
 
 ```
 staging/                        intermediate/                    marts/

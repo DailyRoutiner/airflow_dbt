@@ -50,9 +50,9 @@ def load_to_volume(client, rows:list[dict], table:str, *parts: str):
     upload_to_volume(client, data, path)
     return path
 
-def build_copy_sql(table: str, path:str) -> str:
+def copy_into(table: str, path:str) -> str:
     """ Volume JSONL 에서 Raw 테이블로 COPY INTO 생성 """
-    target_table = f"workspace.analytics_raw.{table}"
+    target_table = f"workspace.analytics_raw.raw_{table}"
     sql = f"""
         COPY INTO {target_table}
         FROM '{path}'
@@ -62,7 +62,6 @@ def build_copy_sql(table: str, path:str) -> str:
 
 def run_sql(client, warehouse_id: str, sql: str):
     """ SQL 실행, 실패 시 예외"""
-    
 
     response = client.statement_execution.execute_statement(
         statement= sql,
@@ -73,6 +72,6 @@ def run_sql(client, warehouse_id: str, sql: str):
     if response.status.state != StatementState.SUCCEEDED:
         error = response.status.error
         detail = error.message if error is not None else "메시지 없음"
-        raise RuntimeError(f"Databricks Server Error: {response.status.state} {detail} ")
+        raise RuntimeError(f"Databricks Server Error: {response.status.state} {detail}")
     return response
 

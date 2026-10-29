@@ -3,7 +3,7 @@ import pytest
 from unittest.mock import MagicMock 
 from databricks.sdk.service.sql import StatementState
 
-from include.dart.loader import build_volume_path, to_jsonl, load_to_volume, build_copy_sql, run_sql
+from include.dart.loader import build_volume_path, to_jsonl, load_to_volume, copy_into, run_sql
 
 
 ROWS = [
@@ -62,13 +62,13 @@ def test_load_to_volume():
     load_to_volume(client, [], "company", "x")
     assert client.files.upload.call_count == 2
 
-def test_build_copy_sql():
+def test_copy_into():
     table = 'company'
     path = build_volume_path(table)
 
-    sql = build_copy_sql(table, path)
+    sql = copy_into(table, path)
 
-    assert "COPY INTO workspace.analytics_raw.company" in sql
+    assert "COPY INTO workspace.analytics_raw.raw_company" in sql
     assert "FROM '/Volumes/workspace/analytics_raw/dart_landing/company.jsonl'" in sql
     assert "FILEFORMAT = JSON" in sql
     assert "force" not in sql
@@ -107,7 +107,7 @@ def test_run_sql_timeout():
     chain = client.statement_execution.execute_statement
     chain.return_value.status.state = StatementState.RUNNING
 
-    chain.return_value.status.error = None # 이게 왜 필요한거지?
+    chain.return_value.status.error = None # Error 상황 가정
 
     with pytest.raises(RuntimeError, match="RUNNING"):
         run_sql(client, "test-wh", "select 1")

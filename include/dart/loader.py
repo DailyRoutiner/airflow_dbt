@@ -50,7 +50,7 @@ def load_to_volume(client, rows:list[dict], table:str, *parts: str):
     upload_to_volume(client, data, path)
     return path
 
-def copy_into(table: str, path:str) -> str:
+def build_copy_sql(table: str, path:str) -> str:
     """ Volume JSONL 에서 Raw 테이블로 COPY INTO 생성 """
     target_table = f"workspace.analytics_raw.raw_{table}"
     sql = f"""

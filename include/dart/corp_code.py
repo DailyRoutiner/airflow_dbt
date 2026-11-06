@@ -2,6 +2,7 @@
 import io
 import csv
 import zipfile 
+from pathlib import Path
 import xml.etree.ElementTree as ET
 
 def parse_corp_zip(raw:bytes) -> list[dict]:
@@ -33,14 +34,24 @@ def filter_listed(rows: list[dict]) -> list[dict]:
 
     return results
 
+def load_roles(path: str) -> dict[str, str]:
+
+    with open(file=path, mode="r", newline="", encoding="utf-8") as f:
+
+        reader = csv.DictReader(f)
+        roles = { row["corp_code"]: row["role"] for row in reader }
+
+        return roles
+        
+
 
 def write_target_csv(rows: list[dict], roles: dict[str, str], path:str) -> None:
     """ 관심 종목만 골라 CSV로 저장"""
 
     targets = []
     for row in rows:
-        if row['stock_code'] in roles:
-            role = roles[row['stock_code']]
+        if row['corp_code'] in roles:
+            role = roles[row['corp_code']]
             targets.append({**row, "role": role})
 
     with open(path, "w", newline="", encoding="utf-8") as f:
@@ -49,3 +60,23 @@ def write_target_csv(rows: list[dict], roles: dict[str, str], path:str) -> None:
         writer.writeheader()
         writer.writerows(targets)
 
+
+def get_corp_code_list(path: str ) -> list[str]:
+
+    with open(file=path, mode='r', newline="", encoding="utf-8") as f:
+        corps = csv.DictReader(f)
+
+        corp_codes = [ row["corp_code"] for row in corps]
+    return corp_codes
+
+
+if __name__ == "__main__":
+
+    # corpCode.zip 읽기
+    corp_zip = Path("data/corpCode.zip").read_bytes()
+    roles_path = Path("data/roles.csv")
+
+    all_corps = parse_corp_zip(corp_zip)
+    roles = load_roles(roles_path)
+
+    write_target_csv(all_corps, roles, path="data/target_corps.csv")

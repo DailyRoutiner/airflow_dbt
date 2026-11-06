@@ -21,4 +21,5 @@ include/dbt/jaffle_shop/seeds/
 
 docs/
 data/
+notebooks/
 .pytest_cache

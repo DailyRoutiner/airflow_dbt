@@ -1,6 +1,6 @@
 import io
 import zipfile
-from include.dart.corp_code import parse_corp_zip, filter_listed, write_target_csv
+from include.dart.corp_code import parse_corp_zip, filter_listed, write_target_csv, load_roles, get_corp_code_list
 import csv
 
 XML = """ 
@@ -47,7 +47,7 @@ def test_write_target_csv(tmp_path):
     path = tmp_path / "target.csv"
 
     rows = parse_corp_zip(make_zip(XML))
-    data = {"005930": "anchor", "999999": "peer"}
+    data = {"00126380": "anchor", "99999999": "peer"}
 
     write_target_csv(rows, data, str(path))
 
@@ -56,7 +56,25 @@ def test_write_target_csv(tmp_path):
 
     # 확인
     assert len(target) == 1
-    assert target[0]['role'] == data["005930"]
+    assert target[0]['role'] == data["00126380"]
     assert target[0]['stock_code'] == "005930"
     assert target[0]['corp_code'] == "00126380"
 
+
+def test_load_roles(tmp_path): 
+    path = tmp_path / "roles.csv"
+    path.write_text("corp_code,role\n00126380,anchor\n00164779,peer", encoding='utf-8')
+    roles = load_roles(path= path)
+
+    print(roles)
+    assert roles == {'00126380': 'anchor', '00164779': 'peer'}
+
+
+def test_get_corp_code_list(tmp_path):
+    path = tmp_path / "target_corps.csv"
+    path.write_text('corp_code\n00126380', encoding='utf-8')
+
+    corp_codes = get_corp_code_list(path)
+
+    print(corp_codes)
+    assert corp_codes == ["00126380",]

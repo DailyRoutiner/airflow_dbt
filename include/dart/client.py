@@ -158,20 +158,23 @@ if __name__ == "__main__":
     # print(client.get_dict('company.json', corp_code="00126380"))
 
     
-    resp = client.get_zip(endpoint='corpCode.xml')
-    Path("data").mkdir(parents=True, exist_ok=True) 
-    path = Path("data") / "corpCode.zip"
-    print( path)
+    # resp = client.get_zip(endpoint='corpCode.xml')
+    # Path("data").mkdir(parents=True, exist_ok=True) 
+    # path = Path("data") / "corpCode.zip"
+    # print( path)
 
 
-    with open(path, "wb") as f:
-        f.write(resp)
+    # with open(path, "wb") as f:
+    #     f.write(resp)
 
 
-    list_corp = parse_corp_zip(path.read_bytes())
-    filtered_list  = filter_listed(list_corp)
-    print(len(list_corp), len(filtered_list ))
+    # list_corp = parse_corp_zip(path.read_bytes())
+    # filtered_list  = filter_listed(list_corp)
+    # print(len(list_corp), len(filtered_list ))
 
     #print(resp[:300])
 
+    resp = client.get_dict(endpoint='company.json', corp_code= "00126380")
+
+    print(resp)
 

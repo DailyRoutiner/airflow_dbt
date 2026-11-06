@@ -28,7 +28,7 @@ flowchart TB
 
     subgraph DBX["Databricks · Unity Catalog"]
         C1[("UC Volume<br/>dart_landing")]
-        C2[("analytics_raw<br/>raw_dart_*")]
+        C2[("analytics_raw<br/>raw_*")]
         C3[("analytics<br/>stg → int → marts")]
     end
 
@@ -54,12 +54,13 @@ flowchart TB
 |---|---|---|
 | 1 | `requests` 추가 · DAG 경로 환경변수화 | ✅ |
 | 2 | Airflow Connection `dart_api` 등록 | ✅ |
-| 3 | `include/dart/client.py` — API 클라이언트 | ✅ (재시도는 Airflow `retries` 로 처리 — 7~10단계) |
-| 4 | `corpCode.xml` 수집 → 대상 종목 목록 확보 | 🚧 (`corp_code.py` 파싱 함수 스텁) |
-| 5 | `include/dart/loader.py` — Volume 업로드 + COPY INTO | ⬜ |
+| 3 | `include/dart/client.py` — API 클라이언트 | ✅ (재시도는 client에서 _request 최대 3회 처리 — 7~10단계) |
+| 4 | `corpCode.xml` 수집 → 대상 종목 목록 확보 | ✅  |
+| 5 | `include/dart/loader.py` — Volume 업로드 + COPY INTO | 🚧(업로드 완료, COPY INTO 남음) |
 | 6 | Databricks raw 테이블 DDL | ⬜ |
 | 7~9 | 공시검색 / 기업개황 / 재무제표 수집 태스크 | ⬜ |
 | 10 | `dags/dart_ingest.py` 조립 + Dataset 발행 | ⬜ |
+| 10.5 | Slack으로 Failure 알람 보내기 (3번과 연관) | ⬜ |
 | 11~15 | dbt 프로젝트 · staging · marts · 테스트 (실제 DART 데이터 대상) | ⬜ |
 | 16~17 | `dags/dart_dbt.py` + 초기 백필 | ⬜ |
 
@@ -100,10 +101,10 @@ flowchart TB
 
 | OpenDART API | raw 테이블 | staging 모델 | 성격 |
 |---|---|---|---|
-| `corpCode.xml` (고유번호) | `raw_dart_corp_code` | `stg_dart__corp_code` | 전체 스냅샷 |
-| `company.json` (기업개황) | `raw_dart_company` | `stg_dart__company` | 스냅샷 |
-| `list.json` (공시검색) | `raw_dart_disclosure` | `stg_dart__disclosure` | 일자 증분 |
-| `fnlttSinglAcntAll.json` (재무제표) | `raw_dart_fin_stmt` | `stg_dart__fin_stmt` | 연도·보고서 증분 |
+| `corpCode.xml` (고유번호) | `raw_corp_code` | `stg_corp_code` | 전체 스냅샷 |
+| `company.json` (기업개황) | `raw_company` | `stg_company` | 스냅샷 |
+| `list.json` (공시검색) | `raw_disclosure` | `stg_disclosure` | 일자 증분 |
+| `fnlttSinglAcntAll.json` (재무제표) | `raw_fin_stmt` | `stg_fin_stmt` | 연도·보고서 증분 |
 
 ```
 staging/                        intermediate/                    marts/

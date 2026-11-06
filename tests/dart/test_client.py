@@ -121,4 +121,6 @@ def test_request_timeout(fake_sleep):
     assert client.session.calls == 2
     assert fake_sleep == [1]
 
-    
+
+# 정상(000) 응답 → 결과에 "status" not in result
+# 013 응답 → 결과가 None

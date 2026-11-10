@@ -56,13 +56,18 @@ flowchart TB
 | 2 | Airflow Connection `dart_api` 등록 | ✅ |
 | 3 | `include/dart/client.py` — API 클라이언트 | ✅ (재시도는 client에서 _request 최대 3회 처리 — 7~10단계) |
 | 4 | `corpCode.xml` 수집 → 대상 종목 목록 확보 | ✅  |
+| 4.5 | **[CI 1차]** GitHub Actions — PR마다 단위 테스트(pytest) 자동 실행 | ⬜ |
 | 5 | `include/dart/loader.py` — Volume 업로드 + COPY INTO | 🚧(업로드 완료, COPY INTO 남음) |
+| 5.5 | **[멱등성 1차]** 같은 파일을 두 번 적재해도 행 수·내용이 같은지 확인 | ⬜ |
 | 6 | Databricks raw 테이블 DDL | ⬜ |
 | 7~9 | 공시검색 / 기업개황 / 재무제표 수집 태스크 | ⬜ |
 | 10 | `dags/dart_ingest.py` 조립 + Dataset 발행 | ⬜ |
-| 10.5 | Slack으로 Failure 알람 보내기 (3번과 연관) | ⬜ |
+| 10.5 | **[실패 알림]** `on_failure_callback` + Slack 알림, 일부러 실패시켜 수신 확인 (3번과 연관) | ⬜ |
+| 10.6 | **[멱등성 2차]** 같은 logical date로 DAG를 두 번 돌려 전후 결과 비교 | ⬜ |
 | 11~15 | dbt 프로젝트 · staging · marts · 테스트 (실제 DART 데이터 대상) | ⬜ |
-| 16~17 | `dags/dart_dbt.py` + 초기 백필 | ⬜ |
+| 15.5 | **[증분 모델]** `fct_disclosure` 를 incremental로 전환, late data 처리 기준 정의 | ⬜ |
+| 15.6 | **[CI 2차]** GitHub Actions에서 `dbt build` + `dbt test` 실행 (CI 전용 스키마) | ⬜ |
+| 16~17 | `dags/dart_dbt.py` + **backfill** (특정 기간 재처리 결과와 full-refresh 결과 비교) | ⬜ |
 
 
 ### dbt 실습 (`include/dbt/chinook/`)

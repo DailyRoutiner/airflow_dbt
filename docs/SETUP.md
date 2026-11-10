@@ -40,7 +40,7 @@ CREATE VOLUME IF NOT EXISTS workspace.analytics_raw.dart_landing;
 | conn_id | 용도 | Conn Type |
 |---|---|---|
 | `dart_api` | OpenDART API 인증 | `Generic` |
-| `dbt-db` | Databricks 접속 | `Databricks` |
+| `databricks-db` | Databricks 접속 | `Databricks` |
 
 `.env` 파일에 추가합니다 (각각 줄바꿈 없이 한 줄).
 

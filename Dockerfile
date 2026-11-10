@@ -1,4 +1,4 @@
-FROM astrocrpublic.azurecr.io/runtime:3.3-2-python-3.12
+FROM astrocrpublic.azurecr.io/runtime:3.3-2-python-3.13
 
 # dbt는 airflow와 분리된 가상환경으로 설치
 RUN python -m venv dbt_venv && \

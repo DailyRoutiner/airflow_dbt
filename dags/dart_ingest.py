@@ -1,13 +1,15 @@
 import os
 from pathlib import Path
 from airflow.sdk import task, dag
+from airflow.sdk.exceptions import AirflowFailException
 from include.dart.collect import fetch_companies
-from include.dart.loader import load_to_volume, get_workspace_client
+from include.dart.loader import load_to_volume, get_workspace_client, build_insert_sql, run_sql
 from include.dart.corp_code import get_corp_code_list
 from include.dart.client import DartClient
 from pendulum import datetime, duration
 
 
+WAREHOUSE_ID = os.environ.get("WAREHOUSE_ID", None)
 AIRFLOW_HOME = Path(os.environ.get("AIRFLOW_HOME", "/usr/local/airflow"))
 DBT_PROJECT_PATH  = AIRFLOW_HOME / "include" / "dbt" / "dart"
 
@@ -29,8 +31,16 @@ def dart_ingest():
         return load_to_volume(ws, rows, "company", ds)
 
     @task()
-    def load_company(path, ds):
-        print(path, ds)
+    def load_company(path, ds=None):
+        if not WAREHOUSE_ID:    
+            raise AirflowFailException("WAREHOUSE_ID 환경변수가 없습니다. .env 확인하세요")
+        ws = get_workspace_client()
+        sql = build_insert_sql('company', path, ds)
+        print(sql)
+        resp = run_sql(ws, WAREHOUSE_ID, sql)
+        print([col.name for col in resp.manifest.schema.columns])
+        print(resp.result.data_array)
+      
         
     volume_path = extract_company()
     load_company(volume_path)

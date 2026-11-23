@@ -1,14 +1,17 @@
 import os
+from pendulum import datetime, duration
 from pathlib import Path
 from airflow.sdk import task, dag
 from airflow.sdk.exceptions import AirflowFailException
+from airflow.sdk import Asset
+
 from include.dart.collect import fetch_companies
 from include.dart.loader import load_to_volume, get_workspace_client, build_insert_sql, run_sql
 from include.dart.corp_code import get_corp_code_list
 from include.dart.client import DartClient
-from pendulum import datetime, duration
 
 
+DATABRICKS_HOST_URI = os.environ.get("DATABRICKS_HOST_URI", "")
 WAREHOUSE_ID = os.environ.get("WAREHOUSE_ID", None)
 AIRFLOW_HOME = Path(os.environ.get("AIRFLOW_HOME", "/usr/local/airflow"))
 DBT_PROJECT_PATH  = AIRFLOW_HOME / "include" / "dbt" / "dart"
@@ -30,7 +33,7 @@ def dart_ingest():
         ws = get_workspace_client()
         return load_to_volume(ws, rows, "company", ds)
 
-    @task()
+    @task(outlets=[Asset(f"databricks://{DATABRICKS_HOST_URI}/workspace/analytics_raw/raw_company")])
     def load_company(path, ds=None):
         if not WAREHOUSE_ID:    
             raise AirflowFailException("WAREHOUSE_ID 환경변수가 없습니다. .env 확인하세요")

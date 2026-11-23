@@ -59,8 +59,8 @@ def build_insert_sql(table: str, path:str, ds: str) -> str:
     sql = f"""
         INSERT INTO {target_table}
         REPLACE WHERE _logical_date = DATE '{ds}'
-        SELECT {",".join(company_cols)}, DATE '{ds}', _metadata.file_path
-        FROM read_files('{path}', format => 'json')
+        SELECT {", ".join(company_cols)}, DATE '{ds}', _metadata.file_path
+        FROM read_files('{path}', schema => '{", ".join([f'{col} STRING' for col in company_cols ])}', format => 'json')
     """
 
     return sql

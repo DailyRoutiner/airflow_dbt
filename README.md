@@ -77,11 +77,11 @@ flowchart TB
 | 3 | `include/dart/client.py` — API 클라이언트 | ✅ (재시도는 client에서 _request 최대 3회 처리 — 7~10단계) |
 | 4 | `corpCode.xml` 수집 → 대상 종목 목록 확보 | ✅  |
 | 4.5 | **[CI 1차]** GitHub Actions — PR마다 단위 테스트(pytest) 자동 실행 | ⬜ |
-| 5 | `include/dart/loader.py` — Volume 업로드 + raw 적재 SQL | ✅ (`build_insert_sql` — `INSERT … REPLACE WHERE` + `read_files`. 남은 일: 0건(빈 파일) 적재 시 `read_files` 스키마 지정) |
+| 5 | `include/dart/loader.py` — Volume 업로드 + raw 적재 SQL | ✅ (`build_insert_sql` — `INSERT … REPLACE WHERE` + `read_files`. `schema =>` 로 컬럼·타입을 직접 지정해 0건(빈 파일)도 0행으로 적재) |
 | 5.5 | **[멱등성 1차]** 같은 날짜로 두 번 적재해도 행 수·내용이 같은지, 다른 날짜는 쌓이는지 확인 | ✅ (같은 날짜 반복 적재 → 15건 유지, 다른 날짜는 따로 쌓임: `_logical_date` 별 15건씩) |
 | 6 | Databricks raw 테이블 DDL | ✅ (`raw_company` — 소스 컬럼 17개 + `_logical_date`·`_file_path`. 공시검색·재무제표 테이블은 7~9단계에서) |
 | 7~9 | 공시검색 / 기업개황 / 재무제표 수집 태스크 | 🚧 (기업개황: API → Volume → raw 적재 완료 · 공시검색·재무제표 ⬜) |
-| 10 | `dags/dart_ingest.py` 조립 + Dataset 발행 | 🚧 (`extract_company` → `load_company` 2태스크 동작. `load_company` 는 SQL·적재 건수 로그, `WAREHOUSE_ID` 없으면 즉시 실패. Dataset 발행 남음) |
+| 10 | `dags/dart_ingest.py` 조립 + Asset(구 Dataset) 발행 | ✅ (`extract_company` → `load_company` 2태스크 동작. `load_company` 는 SQL·적재 건수 로그, `WAREHOUSE_ID` 없으면 즉시 실패. 성공 시 `outlets` 로 `databricks://<호스트>/workspace/analytics_raw/raw_company` Asset 이벤트 발행 — 호스트는 `.env` 의 `DATABRICKS_HOST_URI`) |
 | 10.5 | **[실패 알림]** `on_failure_callback` + Slack 알림, 일부러 실패시켜 수신 확인 (3번과 연관) | ⬜ |
 | 10.6 | **[멱등성 2차]** 같은 logical date로 DAG를 두 번 돌려 전후 결과 비교 | ✅ (같은 날 Trigger 2번 · Clear 재실행 후에도 `2026-11-12` 는 15건 그대로) |
 | 11~15 | dbt 프로젝트 · staging · marts · 테스트 (실제 DART 데이터 대상) | ⬜ |

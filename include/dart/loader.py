@@ -34,7 +34,7 @@ def upload_to_volume(client, data:bytes, path:str, overwrite: bool = True):
     client.files.upload(file_path=path, contents=file, overwrite=overwrite)
 
 
-def get_workspace_client(conn_id: str = "dbt-db"):
+def get_workspace_client(conn_id: str = "databricks-db"):
     # 함수 안에서 import 
     from airflow.sdk import BaseHook    # 3 버전
     from databricks.sdk import WorkspaceClient
@@ -50,14 +50,19 @@ def load_to_volume(client, rows:list[dict], table:str, *parts: str):
     upload_to_volume(client, data, path)
     return path
 
-def build_copy_sql(table: str, path:str) -> str:
-    """ Volume JSONL 에서 Raw 테이블로 COPY INTO 생성 """
+def build_insert_sql(table: str, path:str, ds: str) -> str:
+    """ Volume JSONL 에서 Raw 테이블로 INSERT REPLACE WHERE 생성 """
     target_table = f"workspace.analytics_raw.raw_{table}"
+    
+    company_cols = ["corp_code","corp_name","corp_name_eng","stock_name","stock_code","ceo_nm","corp_cls","jurir_no","bizr_no","adres","hm_url","ir_url","phn_no","fax_no","induty_code","est_dt","acc_mt"]
+    
     sql = f"""
-        COPY INTO {target_table}
-        FROM '{path}'
-        FILEFORMAT = JSON
+        INSERT INTO {target_table}
+        REPLACE WHERE _logical_date = DATE '{ds}'
+        SELECT {", ".join(company_cols)}, DATE '{ds}', _metadata.file_path
+        FROM read_files('{path}', schema => '{", ".join([f'{col} STRING' for col in company_cols ])}', format => 'json')
     """
+
     return sql
 
 def run_sql(client, warehouse_id: str, sql: str):

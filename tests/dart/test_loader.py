@@ -3,7 +3,7 @@ import pytest
 from unittest.mock import MagicMock 
 from databricks.sdk.service.sql import StatementState
 
-from include.dart.loader import build_volume_path, to_jsonl, load_to_volume, build_copy_sql, run_sql
+from include.dart.loader import build_volume_path, to_jsonl, load_to_volume, build_insert_sql, run_sql
 
 
 ROWS = [
@@ -62,16 +62,16 @@ def test_load_to_volume():
     load_to_volume(client, [], "company", "x")
     assert client.files.upload.call_count == 2
 
-def test_build_copy_sql():
+def test_build_insert_sql():
     table = 'company'
-    path = build_volume_path(table)
+    path = build_volume_path(table, "2026-10-12")
 
-    sql = build_copy_sql(table, path)
+    sql = build_insert_sql(table, path, "2026-10-12")
 
-    assert "COPY INTO workspace.analytics_raw.raw_company" in sql
-    assert "FROM '/Volumes/workspace/analytics_raw/dart_landing/company.jsonl'" in sql
-    assert "FILEFORMAT = JSON" in sql
-    assert "force" not in sql
+    assert "INSERT INTO workspace.analytics_raw.raw_company" in sql
+    assert "REPLACE WHERE _logical_date = DATE '2026-10-12'" in sql
+    assert "SELECT corp_code, corp_name, corp_name_eng, stock_name, stock_code, ceo_nm, corp_cls, jurir_no, bizr_no, adres, hm_url, ir_url, phn_no, fax_no, induty_code, est_dt, acc_mt, DATE '2026-10-12', _metadata.file_path" in sql
+    assert "FROM read_files('/Volumes/workspace/analytics_raw/dart_landing/company/2026-10-12.jsonl', schema => 'corp_code STRING, corp_name STRING, corp_name_eng STRING, stock_name STRING, stock_code STRING, ceo_nm STRING, corp_cls STRING, jurir_no STRING, bizr_no STRING, adres STRING, hm_url STRING, ir_url STRING, phn_no STRING, fax_no STRING, induty_code STRING, est_dt STRING, acc_mt STRING', format => 'json')" in sql
 
 def test_run_sql_failed():
 

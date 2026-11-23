@@ -20,6 +20,6 @@ flowchart TB
 
     DART -->|"HTTPS · crtfc_key"| B1
     B1 -->|"① Files API 업로드"| C1
-    C1 -->|"② COPY INTO"| C2
+    C1 -->|"② INSERT … REPLACE WHERE"| C2
     C2 --> B2
     B2 -->|"③ dbt run"| C3

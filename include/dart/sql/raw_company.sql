@@ -1,5 +1,5 @@
 create table if not exists workspace.analytics_raw.raw_company(
-	corp_code string ,
+	corp_code string,
 	corp_name string,
 	corp_name_eng string,
 	stock_name string,
@@ -15,5 +15,7 @@ create table if not exists workspace.analytics_raw.raw_company(
 	fax_no string,
 	induty_code string,
 	est_dt string,
-	acc_mt string
-)
+	acc_mt string,
+	_logical_date date not null,
+	_file_path string
+);

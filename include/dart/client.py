@@ -127,6 +127,9 @@ class DartClient:
     def get_dict(self, endpoint: str, **params) -> dict | None:
         """ 단건 응답"""
         payload = self._get_payload(endpoint, **params)
+        if payload:
+            payload.pop("status")
+            payload.pop("message")
 
         return payload
 

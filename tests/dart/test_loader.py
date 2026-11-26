@@ -34,7 +34,7 @@ def test_to_jsonl():
     rows = ROWS
     result = to_jsonl(rows)
 
-    assert to_jsonl([]) == b"1"
+    assert to_jsonl([]) == b""
     assert isinstance(result, bytes)
 
     json_list = result.decode("utf-8").splitlines() 

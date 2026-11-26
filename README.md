@@ -76,7 +76,7 @@ flowchart TB
 | 2 | Airflow Connection `dart_api` 등록 | ✅ |
 | 3 | `include/dart/client.py` — API 클라이언트 | ✅ (재시도는 client에서 _request 최대 3회 처리 — 7~10단계) |
 | 4 | `corpCode.xml` 수집 → 대상 종목 목록 확보 | ✅  |
-| 4.5 | **[CI 1차]** GitHub Actions — PR마다 단위 테스트(pytest) 자동 실행 | ⬜ |
+| 4.5 | **[CI 1차]** GitHub Actions — push마다 단위 테스트(pytest) 자동 실행 | ✅ (`.github/workflows/ci.yml` — 모든 브랜치 push + 수동 실행(`workflow_dispatch`)에서 `tests/dart` 실행. master 브랜치 보호: PR 필수 + 필수 체크 `test`. CI 에는 `data/`·Databricks 환경변수가 없어 통합 테스트는 skip) |
 | 5 | `include/dart/loader.py` — Volume 업로드 + raw 적재 SQL | ✅ (`build_insert_sql` — `INSERT … REPLACE WHERE` + `read_files`. `schema =>` 로 컬럼·타입을 직접 지정해 0건(빈 파일)도 0행으로 적재) |
 | 5.5 | **[멱등성 1차]** 같은 날짜로 두 번 적재해도 행 수·내용이 같은지, 다른 날짜는 쌓이는지 확인 | ✅ (같은 날짜 반복 적재 → 15건 유지, 다른 날짜는 따로 쌓임: `_logical_date` 별 15건씩) |
 | 6 | Databricks raw 테이블 DDL | ✅ (`raw_company` — 소스 컬럼 17개 + `_logical_date`·`_file_path`. 공시검색·재무제표 테이블은 7~9단계에서) |
